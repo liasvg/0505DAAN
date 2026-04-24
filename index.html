@@ -255,7 +255,7 @@ const checkpoints = [
   {id:'01', title:'安全畢業者', body:'沒有特別耀眼，但你穩穩走到了最後。'},
   {id:'02', title:'延畢但活著', body:'花了比較久，但至少，你沒有放棄。'},
   {id:'03', title:'努力過頭的人', body:'什麼都想做好，最後最先倒下的卻是你。'},
-  {id:'04', title:'社交滿點，學分告急', body:'朋友很多，回憶很多，但成績單也很精彩。'},
+  {id:'04', title:'不知道該往哪裡去', body:'什麼都想要、什麼都想衝，但三分鐘熱度。'},
   {id:'05', title:'一直以為還來得及', body:'你不是不努力，只是總覺得明天再開始就好。'},
   {id:'06', title:'其實你早就想求救了', body:'你不是不需要幫忙。你只是一直覺得，再撐一下就好。'},
   {id:'07', title:'？？？', body:'這個位置，留給未來的你。'}
@@ -327,10 +327,10 @@ render(){
 const mt=document.getElementById('main-text');
 const a=document.createElement('div');
 a.className='end-line';
-a.textContent='你可以當 P 人。\n你也可以當 J 人。';
+a.textContent='你可以是 P 人。\n你也可以是 J 人。';
 const b=document.createElement('div');
 b.className='end-sub';
-b.textContent='性格沒有優劣。\n\n自由，本身就是責任。\n當暴風雨來臨時，你有傘嗎';
+b.textContent='性格沒有優劣。\n\n而自由，本身就是責任。\n當暴風雨來臨時，你有傘嗎';
 mt.appendChild(a);
 mt.appendChild(b);
 setTimeout(()=>a.classList.add('shown'),100);
