@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>選擇與後果互動故事 (講者控制最終版)</title>
+<style>
+/* === 完全保留你最愛的原始黑底大字體設定 === */
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family: "Noto Sans TC", sans-serif;
+  background:#111;
+  color:#f5f5f5;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.stage{
+  width:min(1000px,100%); 
+  min-height:700px;
+  background:linear-gradient(180deg,#1a1a1a,#151515);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:40px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+.scene-label{
+  font-size:18px; 
+  letter-spacing:.12em;
+  color:#bdbdbd;
+  text-transform:uppercase;
+  font-weight:bold;
+}
+.status{
+  display:flex;
+  gap:20px;
+  font-size:18px; 
+  color:#d8d8d8;
+}
+.main-text{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:20px;
+}
+.line{
+  opacity:0;
+  transform:translateY(8px);
+  transition:.45s;
+  white-space:pre-line;
+  line-height:1.8;
+}
+.line.shown{
+  opacity:1;
+  transform:translateY(0);
+}
+.line.big{
+  font-size:42px; 
+  font-weight:700;
+  color: #fff;
+}
+.line.muted{
+  color:#c9c9c9;
+  font-size:24px; 
+}
+.line.question{
+  padding:24px;
+  border-left:6px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.03);
+  border-radius:12px;
+  font-size:24px; 
+}
+.footer{
+  border-top:1px solid rgba(255,255,255,.08);
+  padding-top:24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.persona-badge{
+  display:flex;
+  gap:16px;
+}
+.badge{
+  padding:14px 24px;
+  font-size:20px; 
+  font-weight:bold;
+  border:2px solid rgba(255,255,255,.15);
+  border-radius:14px;
+  cursor:pointer;
+  transition: .2s;
+}
+.badge.active{
+  background:rgba(255,255,255,.15);
+  border-color:rgba(255,255,255,.6);
+  color: #fff;
+}
+.next-btn{
+  padding:16px 36px;
+  font-size:22px; 
+  border:none;
+  border-radius:14px;
+  background:#f5f5f5;
+  color:#111;
+  font-weight:700;
+  cursor:pointer;
+  transition: .2s;
+}
+.next-btn:hover{
+  background:#fff;
+  transform: scale(1.02);
+}
+.next-btn:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+/* 原本完美的痛點清單 CSS */
+.consequences{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.con-item{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.05);
+  padding:20px 24px;
+  border-radius:16px;
+  opacity:0;
+  transform:translateY(10px);
+  transition:.4s;
+  font-size: 20px; 
+  color: #d8d8d8;
+}
+.con-item.shown{
+  opacity:1;
+  transform:translateY(0);
+}
+.con-title{
+  font-size: 26px; 
+  font-weight:700;
+  color: #fff;
+  margin-bottom:8px;
+}
+
+/* === 新增：存檔點網格 CSS === */
+.checkpoint-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 10px;
+}
+.cp-card {
+  border: 2px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.03);
+  padding: 16px 20px;
+  border-radius: 12px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: .4s;
+}
+.cp-card.shown {
+  opacity: 1;
+  transform: translateY(0);
+}
+.cp-id {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff6b6b; /* 用紅色凸顯存檔點感 */
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+.cp-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.cp-body {
+  font-size: 16px; 
+  color: #d8d8d8;
+  line-height: 1.5;
+}
+
+.end-line,.end-sub{
+  opacity:0;
+  transition:.8s;
+  white-space:pre-line;
+  line-height:1.8;
+}
+.end-line.shown,.end-sub.shown{
+  opacity:1;
+}
+.end-line{
+  font-size:48px; 
+  font-weight:700;
+  color: #fff;
+}
+.end-sub{
+  font-size:26px; 
+  color:#d8d8d8;
+  margin-top:24px;
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="topbar">
+    <div class="scene-label" id="scene-label">開場</div>
+    <div class="status">
+      <div>學業：★★☆☆☆</div>
+      <div>壓力：★★★☆☆</div>
+      <div>自由：★★★★★</div>
+    </div>
+  </div>
+
+  <div class="main-text" id="main-text"></div>
+
+  <div class="footer">
+    <div class="persona-badge" id="p-select">
+      <div class="badge active" id="badge-p" onclick="setPersona('P')">P 人 (隨遇而安)</div>
+      <div class="badge" id="badge-j" onclick="setPersona('J')">J 人 (計畫控)</div>
+    </div>
+    <button class="next-btn" id="next-btn" onclick="advance()">故事開始</button>
+  </div>
+</div>
+
+<script>
+let persona='P';
+let step=0;
+let conIndex=0; 
+
+// 完美的 5 個痛點保留
+const consequences=[
+{title:'1. 重修，佔掉你的時間',body:'那個學期，別人去實習、去營隊、去做你也想做的事。\n你在補那門課。'},
+{title:'2. 成績單的封殺',body:'申請計畫、出國、研究所——\n別人還在選，你已經因為成績太難看，先被篩掉了。'},
+{title:'3. 失去底氣',body:'挫折多了幾次之後，\n開口之前你會先想：「算了，反正我也做不到。」'},
+{title:'4. 自我責怪的內耗',body:'「我也知道要念好啊，但我沒有辦法。」\n深夜裡你最氣的不是別人，是自己。'},
+{title:'5. 懷疑未來',body:'「這條路真的是我要的嗎？」\n你分不清是不喜歡，還是單純因為逃避而迷路。'}
+];
+
+// 新增的 7 個存檔點
+const checkpoints = [
+  {id:'01', title:'安全畢業者', body:'沒有特別耀眼，但你穩穩走到了最後。'},
+  {id:'02', title:'延畢但活著', body:'花了比較久，但至少，你沒有放棄。'},
+  {id:'03', title:'努力過頭的人', body:'什麼都想做好，最後最先倒下的卻是你。'},
+  {id:'04', title:'社交滿點，學分告急', body:'朋友很多，回憶很多，但成績單也很精彩。'},
+  {id:'05', title:'一直以為還來得及', body:'你不是不努力，只是總覺得明天再開始就好。'},
+  {id:'06', title:'其實你早就想求救了', body:'你不是不需要幫忙。你只是一直覺得，再撐一下就好。'},
+  {id:'07', title:'？？？', body:'這個位置，留給未來的你。'}
+];
+
+const steps=[
+{
+label:'開場',
+render(){
+addLine('你以為你在選選項，','muted',0);
+addLine('其實你在選代價。','big',300);
+addLine('面對即將到來的大學生活，你比較像哪一種人？','muted',800);
+},
+btnText:'進入第一幕'
+},
+{
+label:'第一幕',
+render(){
+addLine('開學第一天。','muted',0);
+addLine('教授走進來，說：', 'muted',400);
+addLine('「這門課不點名。」','big',900);
+addLine(persona==='P'
+?'你心裡鬆了一口氣。\n「太爽了，反正考前再唸就好。」'
+:'你在筆記本上寫下：「自主管理。」\n你告訴自己，你有完美的讀書計畫。','question',1600);
+},
+btnText:'繼續'
+},
+{
+label:'期中考後',
+render(){
+addLine('期中考範圍出來了。','muted',0);
+addLine(persona==='P'
+?'你打開課本。\n發現像天書一樣，你不知道從哪裡開始看。'
+:'你的計畫表早就落後了三週。\n活動太多，你不知道從哪裡開始追。','',500);
+addLine('你盡力了（或者假裝盡力了）。','muted',1200);
+addLine('成績出來——死當。','big',1800);
+addLine('你當時以為，最壞的結果不過就是「考不好」而已。','question',2500);
+},
+btnText:'你沒想到的是...'
+},
+{
+label:'骨牌效應',
+render(){
+    showConsequencesUI(); // 這裡呼叫了完美的手動連擊功能
+},
+btnText:'看第一個代價'
+},
+{
+label:'狀態檢核',
+render(){
+    const mt = document.getElementById('main-text');
+    mt.innerHTML = '<div class="line big shown" style="color:#ff6b6b; margin-bottom:5px;">CURRENT STATUS: 中途存檔點</div><div class="line muted shown" style="margin-bottom:15px; font-size:20px;">這不是結局，這是你現在可能卡住的狀態：</div><div class="checkpoint-grid" id="cp-grid"></div>';
+    const grid = document.getElementById('cp-grid');
+    checkpoints.forEach((cp, i) => {
+        const card = document.createElement('div');
+        card.className = 'cp-card';
+        // 讓第七個佔滿整行
+        if(i === 6) card.style.gridColumn = "1 / -1"; 
+        card.innerHTML = `<div class="cp-id">ENDING ${cp.id}</div><div class="cp-title">${cp.title}</div><div class="cp-body">${cp.body}</div>`;
+        grid.appendChild(card);
+        setTimeout(() => card.classList.add('shown'), 200 + i * 150);
+    });
+},
+btnText:'進入 Final Chapter'
+},
+{
+label:'靈魂拷問',
+render(){
+const mt=document.getElementById('main-text');
+const a=document.createElement('div');
+a.className='end-line';
+a.textContent='你可以當 P 人。\n你也可以當 J 人。';
+const b=document.createElement('div');
+b.className='end-sub';
+b.textContent='性格沒有優劣。\n\n自由，本身就是責任。\n當暴風雨來臨時，你有傘嗎';
+mt.appendChild(a);
+mt.appendChild(b);
+setTimeout(()=>a.classList.add('shown'),100);
+setTimeout(()=>b.classList.add('shown'),700);
+
+// 把按鈕改成連結到資源教室
+document.getElementById('p-select').style.display='none';
+const btn = document.getElementById('next-btn');
+btn.textContent = '尋找資源教室';
+btn.style.backgroundColor = '#ff6b6b'; // 按鈕變紅色凸顯
+btn.style.color = '#fff';
+btn.onclick = () => {
+    alert("接下來把麥克風交給資源教室的業務宣傳！");
+};
+
+},
+btnText:null
+}
+];
+
+function setPersona(p){
+ if(step>1)return;
+ persona=p;
+ document.getElementById('badge-p').className='badge'+(p==='P'?' active':'');
+ document.getElementById('badge-j').className='badge'+(p==='J'?' active':'');
+}
+
+function addLine(text,cls,delay){
+ setTimeout(()=>{
+  const el=document.createElement('div');
+  el.className='line '+(cls||'');
+  el.textContent=text;
+  document.getElementById('main-text').appendChild(el);
+  setTimeout(()=>el.classList.add('shown'),30);
+ },delay);
+}
+
+// 完美保留的講者控制版UI
+function showConsequencesUI(){
+ const mt=document.getElementById('main-text');
+ mt.innerHTML='';
+ const wrap=document.createElement('div');
+ wrap.className='consequences';
+ wrap.id='con-wrap'; 
+ mt.appendChild(wrap);
+
+ const btn=document.getElementById('next-btn');
+ btn.onclick = revealNextConsequence; 
+}
+
+// 點擊按鈕一次，秀出一個痛點
+function revealNextConsequence() {
+  const wrap = document.getElementById('con-wrap');
+  const btn = document.getElementById('next-btn');
+
+  if(conIndex < consequences.length) {
+    const c = consequences[conIndex];
+    const item = document.createElement('div');
+    item.className = 'con-item';
+    item.innerHTML = `<div class="con-title">${c.title}</div><div>${c.body.replace(/\n/g,'<br>')}</div>`;
+    wrap.appendChild(item);
+    
+    setTimeout(() => {
+      item.classList.add('shown');
+      wrap.scrollTop = wrap.scrollHeight;
+    }, 50);
+    
+    conIndex++;
+    
+    if(conIndex < consequences.length) {
+       btn.textContent = `看第 ${conIndex + 1} 個代價`;
+    } else {
+       btn.textContent = '檢視目前狀態';
+    }
+  } else {
+    btn.onclick = advance;
+    advance();
+  }
+}
+
+function advance(){
+ if(step>=steps.length)return;
+ const mt=document.getElementById('main-text');
+ if(step!==3) mt.innerHTML=''; 
+ document.getElementById('scene-label').textContent=steps[step].label;
+ steps[step].render();
+ if(steps[step].btnText && step !== 3 && step !== 5){ 
+   document.getElementById('next-btn').textContent=steps[step].btnText;
+ }
+ step++;
+}
+advance();
+</script>
+</body>
+</html>
